@@ -1,46 +1,46 @@
 classdef MVector < handle
-%MVector Fast 2D/3D mutable vector (Processing PVector-style) for MATLAB.
-% 
-% MVector is a high-performance, mutable vector with Processing PVector-like
-% API. It automatically handles 2D and 3D usage (z=0 for 2D).
-%
-% Syntax (construction)
-%   v = MVector()                 % -> [0 0] (2D)
-%   v = MVector(x,y)              % -> [x y] (2D)
-%   v = MVector(x,y,z)            % -> [x y z] (3D)
-%   v = MVector([x y]) | MVector([x y z])
-%   v = MVector(otherMVector)     % copy
-%
-% Key behavior
-%   • Mutable & chainable (handle class): v.add(...).normalize().mult(5)
-%   • 2D/3D automatic; setting/using z promotes to 3D
-%   • Robust input validation & clear error messages
-%   • No toolboxes required
-%
-% Instance methods (PVector-equivalent)
-%   copy, get, set, add, sub, mult, div, mag, magSq, dist, dot, cross,
-%   normalize, limit, setMag, heading, rotate, lerp, array, toString, equals
-%
-% Static methods
-%   addS, subS, multS, divS, distS, dotS, crossS, lerpS   % static ops (*S naming)
-%   random2D, random3D, fromAngle, angleBetween
-%
-% NOTE on static names:
-%   MATLAB disallows static and instance methods with the same name. To
-%   mirror PVector's static operations (add/sub/mult/div/dot/dist/cross/lerp),
-%   this class provides them with a "*S" suffix (e.g., MVector.addS(v1,v2)).
-%
-% Compatibility notes (Processing PVector)
-%   • get(targetArray) is emulated via get(template): returns values in the
-%     shape/length of 'template' (length 2 or 3, row or column).
-%   • random2D / random3D accept an optional target MVector. Any extra
-%     argument (e.g., a PApplet 'parent') is accepted and ignored.
-%
-% Example
-%   v = MVector(1,2).add(3,4).normalize().mult(10);
-%   w = MVector.fromAngle(pi/4);
-%   a = MVector.addS(v,w);
-%   t = MVector(); MVector.subS(a,w,t);
+    %MVector Fast 2D/3D mutable vector (Processing PVector-style) for MATLAB.
+    %
+    % MVector is a high-performance, mutable vector with Processing PVector-like
+    % API. It automatically handles 2D and 3D usage (z=0 for 2D).
+    %
+    % Syntax (construction)
+    %   v = MVector()                 % -> [0 0] (2D)
+    %   v = MVector(x,y)              % -> [x y] (2D)
+    %   v = MVector(x,y,z)            % -> [x y z] (3D)
+    %   v = MVector([x y]) | MVector([x y z])
+    %   v = MVector(otherMVector)     % copy
+    %
+    % Key behavior
+    %   • Mutable & chainable (handle class): v.add(...).normalize().mult(5)
+    %   • 2D/3D automatic; setting/using z promotes to 3D
+    %   • Robust input validation & clear error messages
+    %   • No toolboxes required
+    %
+    % Instance methods (PVector-equivalent)
+    %   copy, get, set, add, sub, mult, div, mag, magSq, dist, dot, cross,
+    %   normalize, limit, setMag, heading, rotate, lerp, array, toString, equals
+    %
+    % Static methods
+    %   addS, subS, multS, divS, distS, dotS, crossS, lerpS   % static ops (*S naming)
+    %   random2D, random3D, fromAngle, angleBetween
+    %
+    % NOTE on static names:
+    %   MATLAB disallows static and instance methods with the same name. To
+    %   mirror PVector's static operations (add/sub/mult/div/dot/dist/cross/lerp),
+    %   this class provides them with a "*S" suffix (e.g., MVector.addS(v1,v2)).
+    %
+    % Compatibility notes (Processing PVector)
+    %   • get(targetArray) is emulated via get(template): returns values in the
+    %     shape/length of 'template' (length 2 or 3, row or column).
+    %   • random2D / random3D accept an optional target MVector. Any extra
+    %     argument (e.g., a PApplet 'parent') is accepted and ignored.
+    %
+    % Example
+    %   v = MVector(1,2).add(3,4).normalize().mult(10);
+    %   w = MVector.fromAngle(pi/4);
+    %   a = MVector.addS(v,w);
+    %   t = MVector(); MVector.subS(a,w,t);
 
     properties (Access = private)
         v   (1,3) double = [0 0 0];
@@ -65,13 +65,13 @@ classdef MVector < handle
     methods
         function obj = MVector(varargin)
             if nargin==0
-                obj.v=[0 0 0]; obj.dim=2; 
+                obj.v=[0 0 0]; obj.dim=2;
                 return
             end
             if nargin==1
                 a = varargin{1};
                 if isa(a,'MVector')
-                    obj.v=a.v; obj.dim=a.dim; 
+                    obj.v=a.v; obj.dim=a.dim;
                     return
                 end
                 a = obj.ensureRowVec(a,'Constructor input must be 1x2 or 1x3 numeric or MVector.');
@@ -101,15 +101,15 @@ classdef MVector < handle
     %% Instance methods
     methods
         function out = copy(obj)
-        %COPY  Deep copy of this vector.
+            %COPY  Deep copy of this vector.
             out = MVector(obj);
         end
 
         function out = get(obj, template)
-        %GET  Return coordinates; if TEMPLATE given (length 2 or 3), return
-        %      values matching its shape (row/col) and length.
+            %GET  Return coordinates; if TEMPLATE given (length 2 or 3), return
+            %      values matching its shape (row/col) and length.
             if nargin==1
-                out = obj.v(1:obj.dim); 
+                out = obj.v(1:obj.dim);
                 return
             end
             if ~isnumeric(template) || ~isvector(template)
@@ -131,13 +131,13 @@ classdef MVector < handle
         end
 
         function obj = set(obj, varargin)
-        %SET  Overloaded: set(x,y) | set(x,y,z) | set(MVector) | set([..]).
+            %SET  Overloaded: set(x,y) | set(x,y,z) | set(MVector) | set([..]).
             n = nargin-1;
             switch n
                 case 1
                     a = varargin{1};
                     if isa(a,'MVector')
-                        obj.v=a.v; obj.dim=a.dim; 
+                        obj.v=a.v; obj.dim=a.dim;
                         return
                     end
                     a = obj.ensureRowVec(a,'set(array) expects 1x2 or 1x3 numeric.');
@@ -157,7 +157,7 @@ classdef MVector < handle
         end
 
         function obj = add(obj, varargin)
-        %ADD  In-place add: add(MVector|[...]) | add(x,y) | add(x,y,z).
+            %ADD  In-place add: add(MVector|[...]) | add(x,y) | add(x,y,z).
             n=nargin-1;
             switch n
                 case 1
@@ -187,7 +187,7 @@ classdef MVector < handle
         end
 
         function obj = sub(obj, varargin)
-        %SUB  In-place subtract: sub(MVector|[...]) | sub(x,y) | sub(x,y,z).
+            %SUB  In-place subtract: sub(MVector|[...]) | sub(x,y) | sub(x,y,z).
             n=nargin-1;
             switch n
                 case 1
@@ -217,33 +217,33 @@ classdef MVector < handle
         end
 
         function obj = mult(obj, n)
-        %MULT  In-place multiply by scalar n.
+            %MULT  In-place multiply by scalar n.
             n=obj.assertFiniteScalar(n,'n must be finite.');
             if obj.dim==3, obj.v=obj.v.*n; else, obj.v(1:2)=obj.v(1:2).*n; end
         end
 
         function obj = div(obj, n)
-        %DIV  In-place divide by nonzero scalar n.
+            %DIV  In-place divide by nonzero scalar n.
             n=obj.assertFiniteNonzeroScalar(n,'n must be nonzero finite.');
             invn=1.0/n;
             if obj.dim==3, obj.v=obj.v.*invn; else, obj.v(1:2)=obj.v(1:2).*invn; end
         end
 
         function m = mag(obj)
-        %MAG  Euclidean length (2D or 3D as applicable).
+            %MAG  Euclidean length (2D or 3D as applicable).
             if obj.dim==3, m = hypot(obj.v(1),hypot(obj.v(2),obj.v(3)));
             else,           m = hypot(obj.v(1),obj.v(2)); end
         end
 
         function m2 = magSq(obj)
-        %MAGSQ  Squared magnitude (fast, no sqrt).
+            %MAGSQ  Squared magnitude (fast, no sqrt).
             vv=obj.v;
             if obj.dim==3, m2 = vv(1)^2 + vv(2)^2 + vv(3)^2;
             else,          m2 = vv(1)^2 + vv(2)^2; end
         end
 
         function d = dist(obj, other)
-        %DIST  Distance to another MVector.
+            %DIST  Distance to another MVector.
             if ~isa(other,'MVector'), error('MVector:dist:Type','dist expects an MVector.'); end
             if obj.dim==3 || other.dim==3
                 dv=obj.v-[other.v(1) other.v(2) other.v(3)];
@@ -254,7 +254,7 @@ classdef MVector < handle
         end
 
         function s = dot(obj, varargin)
-        %DOT  Dot product with MVector or components: dot(v) | dot(x,y[,z]).
+            %DOT  Dot product with MVector or components: dot(v) | dot(x,y[,z]).
             n=nargin-1;
             switch n
                 case 1
@@ -290,7 +290,7 @@ classdef MVector < handle
         end
 
         function out = cross(obj, other, target)
-        %CROSS  3D cross product; returns new vector or writes into TARGET.
+            %CROSS  3D cross product; returns new vector or writes into TARGET.
             if ~isa(other,'MVector'), error('MVector:cross:Type','cross expects an MVector.'); end
             ax=obj.v(1); ay=obj.v(2); az=obj.v(3);
             bx=other.v(1); by=other.v(2); bz=other.v(3);
@@ -304,7 +304,7 @@ classdef MVector < handle
         end
 
         function out = normalize(obj, varargin)
-        %NORMALIZE  Make unit length (in-place); or write into TARGET.
+            %NORMALIZE  Make unit length (in-place); or write into TARGET.
             if nargin==1
                 m=obj.mag();
                 if m>0
@@ -313,7 +313,7 @@ classdef MVector < handle
                 end
                 out=obj;
             elseif nargin==2
-                target=varargin{1}; 
+                target=varargin{1};
                 if ~isa(target,'MVector'), error('MVector:normalize:TargetType','target must be an MVector.'); end
                 m=obj.mag();
                 if m>0
@@ -330,10 +330,10 @@ classdef MVector < handle
         end
 
         function obj = limit(obj, maxMag)
-        %LIMIT  Clamp magnitude to maxMag (in-place).
+            %LIMIT  Clamp magnitude to maxMag (in-place).
             maxMag=obj.assertFiniteNonnegativeScalar(maxMag,'max must be >=0 finite.');
             if maxMag==0
-                obj.v(:)=0; 
+                obj.v(:)=0;
                 return
             end
             if obj.magSq()>maxMag*maxMag
@@ -343,7 +343,7 @@ classdef MVector < handle
         end
 
         function out = setMag(obj, varargin)
-        %SETMAG  Set magnitude: setMag(len) in-place or setMag(target,len).
+            %SETMAG  Set magnitude: setMag(len) in-place or setMag(target,len).
             if nargin==2
                 len=obj.assertFiniteNonnegativeScalar(varargin{1},'len must be >=0 finite.');
                 m=obj.mag(); if m>0, obj.mult(len/m); end
@@ -367,20 +367,20 @@ classdef MVector < handle
         end
 
         function a = heading(obj)
-        %HEADING  2D heading angle (atan2(y,x)); z ignored.
+            %HEADING  2D heading angle (atan2(y,x)); z ignored.
             a = atan2(obj.v(2), obj.v(1));
         end
 
         function obj = rotate(obj, theta)
-        %ROTATE  2D rotation by theta (radians). z preserved.
+            %ROTATE  2D rotation by theta (radians). z preserved.
             theta=obj.assertFiniteScalar(theta,'theta must be finite.');
             c=cos(theta); s=sin(theta); x=obj.v(1); y=obj.v(2);
             obj.v(1)=x*c-y*s; obj.v(2)=x*s+y*c;
         end
 
         function obj = lerp(obj, varargin)
-        %LERP  In-place linear interpolation:
-        %      lerp(v,amt) | lerp(x,y,amt) | lerp(x,y,z,amt)
+            %LERP  In-place linear interpolation:
+            %      lerp(v,amt) | lerp(x,y,amt) | lerp(x,y,z,amt)
             n=nargin-1;
             switch n
                 case 2
@@ -409,12 +409,12 @@ classdef MVector < handle
         end
 
         function a = array(obj)
-        %ARRAY  Return [x y] or [x y z] as numeric row vector.
+            %ARRAY  Return [x y] or [x y z] as numeric row vector.
             a = obj.v(1:obj.dim);
         end
 
         function s = toString(obj)
-        %TOSTRING  Human-readable string of the vector.
+            %TOSTRING  Human-readable string of the vector.
             if obj.dim==3
                 s = sprintf('MVector[%.15g, %.15g, %.15g]',obj.v(1),obj.v(2),obj.v(3));
             else
@@ -423,7 +423,7 @@ classdef MVector < handle
         end
 
         function tf = equals(obj, other)
-        %EQUALS  True if same size and same components (exact equality).
+            %EQUALS  True if same size and same components (exact equality).
             if isa(other,'MVector')
                 tf = (obj.dim==other.dim) && all(obj.v(1:obj.dim)==other.v(1:other.dim));
             elseif isnumeric(other) && isvector(other)
@@ -440,7 +440,7 @@ classdef MVector < handle
     %% Static methods (*S to avoid name clash with instance names)
     methods (Static)
         function out = addS(v1, v2, target)
-        %ADDS  Static add: out = addS(v1,v2) or addS(v1,v2,target).
+            %ADDS  Static add: out = addS(v1,v2) or addS(v1,v2,target).
             [a,b]=MVector.assertTwoVectors(v1,v2,'addS');
             if nargin<3
                 if a.dim==3||b.dim==3
@@ -460,7 +460,7 @@ classdef MVector < handle
         end
 
         function out = subS(v1, v2, target)
-        %SUBS  Static subtract: out = subS(v1,v2) or subS(v1,v2,target).
+            %SUBS  Static subtract: out = subS(v1,v2) or subS(v1,v2,target).
             [a,b]=MVector.assertTwoVectors(v1,v2,'subS');
             if nargin<3
                 if a.dim==3||b.dim==3
@@ -480,7 +480,7 @@ classdef MVector < handle
         end
 
         function out = multS(v, n, target)
-        %MULTS  Static multiply: out = multS(v,n) or multS(v,n,target).
+            %MULTS  Static multiply: out = multS(v,n) or multS(v,n,target).
             MVector.assertVector(v,'multS');
             n=MVector.assertFiniteScalarStatic(n,'multS: n must be finite.');
             if nargin<3
@@ -494,7 +494,7 @@ classdef MVector < handle
         end
 
         function out = divS(v, n, target)
-        %DIVS  Static divide: out = divS(v,n) or divS(v,n,target).
+            %DIVS  Static divide: out = divS(v,n) or divS(v,n,target).
             MVector.assertVector(v,'divS');
             n=MVector.assertFiniteNonzeroScalarStatic(n,'divS: n must be nonzero finite.');
             invn=1.0/n;
@@ -509,7 +509,7 @@ classdef MVector < handle
         end
 
         function d = distS(v1, v2)
-        %DISTS  Static distance between two vectors.
+            %DISTS  Static distance between two vectors.
             [a,b]=MVector.assertTwoVectors(v1,v2,'distS');
             if a.dim==3||b.dim==3
                 dv=[a.v(1)-b.v(1) a.v(2)-b.v(2) a.v(3)-b.v(3)];
@@ -521,7 +521,7 @@ classdef MVector < handle
         end
 
         function s = dotS(v1, v2)
-        %DOTS  Static dot product of two vectors.
+            %DOTS  Static dot product of two vectors.
             [a,b]=MVector.assertTwoVectors(v1,v2,'dotS');
             if a.dim==3||b.dim==3
                 s = a.v(1)*b.v(1)+a.v(2)*b.v(2)+a.v(3)*b.v(3);
@@ -531,35 +531,35 @@ classdef MVector < handle
         end
 
         function out = crossS(v1, v2, target)
-        %CROSSS  Static cross product into TARGET (required).
-            [a,b]=MVector.assertTwoVectors(v1,v2,'crossS'); 
+            %CROSSS  Static cross product into TARGET (required).
+            [a,b]=MVector.assertTwoVectors(v1,v2,'crossS');
             MVector.assertTarget(target,'crossS');
             ax=a.v(1); ay=a.v(2); az=a.v(3);
             bx=b.v(1); by=b.v(2); bz=b.v(3);
-            target.v=[ay*bz-az*by, az*bx-ax*bz, ax*by-ay*bx]; target.dim=3; 
+            target.v=[ay*bz-az*by, az*bx-ax*bz, ax*by-ay*bx]; target.dim=3;
             out=target;
         end
 
         function out = lerpS(v1, v2, amt)
-        %LERPS  Static linear interpolation: out = (1-amt)*v1 + amt*v2.
+            %LERPS  Static linear interpolation: out = (1-amt)*v1 + amt*v2.
             [a,b]=MVector.assertTwoVectors(v1,v2,'lerpS');
             amt=MVector.assertFiniteScalarStatic(amt,'lerpS: amt must be finite.');
             if a.dim==3||b.dim==3
                 out=MVector([a.v(1)+amt*(b.v(1)-a.v(1)), ...
-                             a.v(2)+amt*(b.v(2)-a.v(2)), ...
-                             a.v(3)+amt*(b.v(3)-a.v(3))]);
+                    a.v(2)+amt*(b.v(2)-a.v(2)), ...
+                    a.v(3)+amt*(b.v(3)-a.v(3))]);
             else
                 out=MVector([a.v(1)+amt*(b.v(1)-a.v(1)), ...
-                             a.v(2)+amt*(b.v(2)-a.v(2))]);
+                    a.v(2)+amt*(b.v(2)-a.v(2))]);
             end
         end
 
         function out = random2D(varargin)
-        %RANDOM2D  Unit vector in random 2D direction.
-        %   out = random2D()                 % returns new MVector
-        %   out = random2D(target)           % writes into target MVector
-        %   out = random2D(target,parent)    % 'parent' ignored (compat)
-        %   out = random2D(parent)           % parent ignored (compat)
+            %RANDOM2D  Unit vector in random 2D direction.
+            %   out = random2D()                 % returns new MVector
+            %   out = random2D(target)           % writes into target MVector
+            %   out = random2D(target,parent)    % 'parent' ignored (compat)
+            %   out = random2D(parent)           % parent ignored (compat)
             target=[];
             if nargin>=1 && isa(varargin{1},'MVector'), target=varargin{1}; end
             theta=2*pi*rand(); c=cos(theta); s=sin(theta);
@@ -571,11 +571,11 @@ classdef MVector < handle
         end
 
         function out = random3D(varargin)
-        %RANDOM3D  Unit vector in random 3D direction.
-        %   out = random3D()                 % returns new MVector
-        %   out = random3D(target)           % writes into target MVector
-        %   out = random3D(target,parent)    % 'parent' ignored (compat)
-        %   out = random3D(parent)           % parent ignored (compat)
+            %RANDOM3D  Unit vector in random 3D direction.
+            %   out = random3D()                 % returns new MVector
+            %   out = random3D(target)           % writes into target MVector
+            %   out = random3D(target,parent)    % 'parent' ignored (compat)
+            %   out = random3D(parent)           % parent ignored (compat)
             target=[];
             if nargin>=1 && isa(varargin{1},'MVector'), target=varargin{1}; end
             z=2*rand()-1; t=2*pi*rand(); r=sqrt(max(0,1-z*z)); x=r*cos(t); y=r*sin(t);
@@ -587,7 +587,7 @@ classdef MVector < handle
         end
 
         function out = fromAngle(angle, target)
-        %FROMANGLE  2D unit vector from angle (radians).
+            %FROMANGLE  2D unit vector from angle (radians).
             a=MVector.assertFiniteScalarStatic(angle,'fromAngle: angle must be finite.');
             if nargin<2
                 out=MVector([cos(a) sin(a)]);
@@ -598,7 +598,7 @@ classdef MVector < handle
         end
 
         function ang = angleBetween(v1, v2)
-        %ANGLEBETWEEN  Angle between two vectors (radians).
+            %ANGLEBETWEEN  Angle between two vectors (radians).
             [a,b]=MVector.assertTwoVectors(v1,v2,'angleBetween');
             ma=a.mag(); mb=b.mag();
             if ma==0 || mb==0, ang=0.0; return, end
