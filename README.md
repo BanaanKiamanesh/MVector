@@ -248,12 +248,6 @@ isequal = norm(a.array() - b.array()) <= tol;
 
 ---
 
-## License
-
-(Add your license text here, e.g., MIT.)
-
----
-
 ## Acknowledgements
 
 * Inspired by **Processing's PVector** (Processing 3/4).
